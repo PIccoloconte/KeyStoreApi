@@ -1,8 +1,10 @@
 import express from "express";
-import productsRoutes from "./routes/products.js";
+import gameRoutes from "./routes/games.js";
+import authRoutes from "./routes/auth.js";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import { authenticate } from "./middlewares/auth.js";
 
 const app = express();
 dotenv.config();
@@ -11,7 +13,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-app.use("/products", productsRoutes);
+app.use("/api/games", authenticate, gameRoutes);
+app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Home Page");
