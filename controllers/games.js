@@ -35,6 +35,7 @@ export const createGame = async (req, res) => {
     platform: req.body.platform,
     imageUrl: req.body.imageUrl,
     available: req.body.available,
+    keys: req.body.keys,
   });
 
   try {
@@ -56,6 +57,24 @@ export const updateGame = async (req, res) => {
     const game = await Game.findById(id);
     if (!game) {
       return res.status(404).json({ message: "Gioco non trovato" });
+    }
+
+    // Gestione custom per platform e keys
+    if (Array.isArray(req.body.platform)) {
+      req.body.platform.forEach((p) => {
+        if (!game.platform.includes(p)) {
+          game.platform.push(p);
+        }
+      });
+      delete req.body.platform;
+    }
+    if (Array.isArray(req.body.keys)) {
+      req.body.keys.forEach((k) => {
+        if (!game.keys.includes(k)) {
+          game.keys.push(k);
+        }
+      });
+      delete req.body.keys;
     }
 
     Object.assign(game, req.body);

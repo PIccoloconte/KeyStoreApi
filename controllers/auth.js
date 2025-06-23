@@ -13,15 +13,15 @@ export const login = async (req, res) => {
 
   if (await bcrypt.compare(password, user.password)) {
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { id: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET
     );
-    return res.json({ status: "ok", data: token });
+    return res.json({ status: "ok", data: token, user: user });
   }
 };
 
 export const register = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, confirmPassword, email, role } = req.body;
 
   if (!username || typeof username !== "string") {
     return res.status(400).json({ message: "Username non valido" });
@@ -36,10 +36,16 @@ export const register = async (req, res) => {
       .json({ message: "La password deve essere di almeno 6 caratteri" });
   }
 
+  if (!confirmPassword || password !== confirmPassword) {
+    return res.status(400).json({ message: "Le password non coincidono" });
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({
     username: username,
     password: hashedPassword,
+    email: email,
+    role: role,
   });
 
   try {
@@ -51,5 +57,14 @@ export const register = async (req, res) => {
     res
       .status(409)
       .json({ status: "error", message: "Errore durante la registrazione" });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, "-password"); // Esclude la password
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Errore nel recupero utenti" });
   }
 };

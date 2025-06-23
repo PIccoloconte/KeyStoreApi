@@ -1,4 +1,5 @@
 import express from "express";
+import { authenticate, isAdmin } from "../middlewares/auth.js";
 import {
   getAllGames,
   getGameById,
@@ -11,8 +12,8 @@ const router = express.Router();
 
 router.get("/", getAllGames);
 router.get("/:id", getGameById);
-router.post("/", createGame);
-router.patch("/:id", updateGame);
-router.delete("/:id", deleteGame);
+router.post("/", authenticate, isAdmin, createGame);
+router.patch("/:id", authenticate, isAdmin, updateGame);
+router.delete("/:id", authenticate, isAdmin, deleteGame);
 
 export default router;

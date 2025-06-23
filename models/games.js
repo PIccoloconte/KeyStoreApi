@@ -19,7 +19,7 @@ const gameSchema = new mongoose.Schema(
       required: true,
     },
     platform: {
-      type: String,
+      type: [String],
       required: true,
     },
     imageUrl: {
@@ -37,6 +37,12 @@ const gameSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    keys: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     createdAt: {
       type: Date,
       default: Date.now,
