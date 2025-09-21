@@ -1,10 +1,26 @@
 import { Game } from "../models/games.js";
 import mongoose from "mongoose";
 
-// Ottieni tutti i giochi
+// Ottieni tutti i giochi con filtri opzionali
 export const getAllGames = async (req, res) => {
   try {
-    const games = await Game.find();
+    const { search, platform } = req.query;
+    let filter = {};
+
+    // Filtro per ricerca testuale (titolo e descrizione)
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        // { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Filtro per piattaforma
+    if (platform) {
+      filter.platform = { $in: [platform] };
+    }
+
+    const games = await Game.find(filter);
     res.status(200).json(games);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -34,6 +50,7 @@ export const createGame = async (req, res) => {
     category: req.body.category,
     platform: req.body.platform,
     imageUrl: req.body.imageUrl,
+    images: req.body.images,
     available: req.body.available,
     keys: req.body.keys,
   });
@@ -62,7 +79,12 @@ export const updateGame = async (req, res) => {
     // Gestione custom per platform e keys
     if (Array.isArray(req.body.platform)) {
       req.body.platform.forEach((p) => {
-        if (!game.platform.includes(p)) {
+        //delete if is already present
+        if (game.platform.includes(p)) {
+          game.platform = game.platform.filter((item) => item !== p);
+        }
+        //push if not already present
+        else if (!game.platform.includes(p)) {
           game.platform.push(p);
         }
       });

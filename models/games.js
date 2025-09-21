@@ -33,6 +33,18 @@ const gameSchema = new mongoose.Schema(
         message: (props) => `${props.value} non è un URL valido!`,
       },
     },
+    images: [
+      {
+        type: String,
+        required: true,
+        validate: {
+          validator: function (v) {
+            return /^(http|https):\/\/[^ "]+$/.test(v);
+          },
+          message: (props) => `${props.value} non è un URL valido!`,
+        },
+      },
+    ],
     available: {
       type: Boolean,
       default: true,
